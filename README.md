@@ -112,3 +112,6 @@ Hi
 
 Process finished with exit code 0
 ```
+
+### mark directory as 'source root' makes things even worse (from a reproducibility POV)
+Using this pycharm feature will add the marked folder to the `sys.path` in addition to the project root. 
