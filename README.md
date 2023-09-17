@@ -115,3 +115,11 @@ Process finished with exit code 0
 
 ### mark directory as 'source root' makes things even worse (from a reproducibility POV)
 Using this pycharm feature will add the marked folder to the `sys.path` in addition to the project root. 
+Source: https://stackoverflow.com/questions/57360738/what-does-mark-directory-as-sources-root-really-do
+
+### Ideal setup
+- you should create your .idea project at project root level
+- you should create your venv at project root level and store your requirements.txt there as well
+- you should create your main source file in src/
+  - src/ will be on sys.path 
+  - all imports can be relative to src/ 

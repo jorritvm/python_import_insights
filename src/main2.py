@@ -11,3 +11,6 @@ if __name__ == '__main__':
 
     from main import print_hi
     print_hi()
+
+    from sister import print_sister
+    print_sister()
