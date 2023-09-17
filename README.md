@@ -123,3 +123,8 @@ Source: https://stackoverflow.com/questions/57360738/what-does-mark-directory-as
 - you should create your main source file in src/
   - src/ will be on sys.path 
   - all imports can be relative to src/ 
+- you should mark your src/ folder in pycharm as "sources root"
+  - this way it will appear in sys.path of your interactive console
+  - you might need to restart your console
+  - this allows you to send python code to your console (alt+shift+e) without lookup errors
+  
