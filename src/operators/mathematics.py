@@ -1,4 +1,9 @@
-# Press the green button in the gutter to run the script.
+def return_math():
+    return "math"
+
+def add(a, b):
+    return a + b
+
 if __name__ == '__main__':
     import os
     print("--- cwd ---")
@@ -9,8 +14,8 @@ if __name__ == '__main__':
     for p in sys.path[:5]:
         print(p)
 
-    from main import print_hi
+    from src.main import print_hi
     print_hi()
 
-    from sister import print_sister
+    from utils import print_sister
     print_sister()
