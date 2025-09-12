@@ -1,20 +1,58 @@
-# Learn python/pycharm import quirks
+# Python import insights
 
 ## Purpose
-This repo is to learn about the python import system and the impact a pycharm project has on that system.
+The purpose of this repo is to establish an ideal python project repository setup that covers the following desiderata:
+- Execution works from command line, vs code, pycharm
+- No tweaks to sys.path or PYTHONPATH are required
+- A src-layout is used, with no code at the project root level
+- Config files can be stored at the project root or in a config/ folder
+- The pycharm IDE can resolve the imports correctly during code analysis
+- Pytest works and can use imports relative to src/
+- A virtual environment can be created at the project root level
+
+To fully grasp the implications of the various setups, we need to understand how python imports work at a deeper level.
+- Understand the difference between cwd and sys.path
+- Understand how script vs module execution differ
+- Understand absolute vs relative imports
+- Understand the differences between modules, files, packages and folders
+
 
 ## Basics
-When running a script from the command line, the first item in `sys.path` will be the path to the script. 
-The docs say that sys.path is then “initialized from the environment variable PYTHONPATH.
+CWD is the current working directory, i.e. the directory from which you started the python interpreter or script.
+It can be obtained using `os.getcwd()`. It is important for python when resolving relative file paths. It has no direct relation to imports.
 
+A python module is a file containing python code. It can be imported using the `import` statement. 
+It can also be executed as a script.
+A python package is different from a folder in that it contains an `__init__.py` file. 
+Since python 3.3 this file is not strictly necessary anymore, but it can be used by the developer to control what is exported when the package is imported. 
+A package can contain modules and sub-packages.
+
+Python can execute code in two ways: as a script or as a module. 
+When executing as a module, the module's name is set to the module's name.
+When executing as a script, the module's name is set to `__main__`.
+Hence, when running a module as a script, it will only execute code in the `__if __name__ == '__main__':`_ block.
+
+`sys.path` is a list of strings that specifies the search path for modules. 
 When you call `import` in the Python interpreter searches through a set of directories for the name provided. 
-The list of directories that it searches is stored in `sys.path`.
+The list of directories that it searches is stored in `sys.path`.  
+It is populated as follows:
+1. The directory containing the script being run (or the current directory if in interactive mode), note that this means:
+  - **When running a module as a script the module's path is added to `sys.path`.**
+  - **When running a module as a module, the current working directory is added to `sys.path`.**
+2. Standard library paths 
+3. Site-packages (third-party packages)
+4. Any paths specified in the PYTHONPATH environment variable
 
-`sys.path` can be modified during run-time. 
-To modify the paths before starting Python, you can modify the PYTHONPATH environment variable.
-You should never do this!
+Virtual environment work because they modify entries 2 and 3 of the `sys.path`.
 
-When we set up a virtual environment it injects itself in `sys.path`.
+## The pitfall
+To keep structure in your project, you want to avoid separate data, configuration and source code files. 
+There are good reasons to avoid having source code at the project root level.
+Once you make that decision, chances are your code only works in pycharm, but not from the command line or vs code.
+Or the code works but your relative file imports now fail.
+
+The internet is filled with people suggesting to modify `sys.path` in your code or to modify the PYTHONPATH environment variable.
+This is a bad idea because it makes your code less portable, as it will only work in your specific setup.
 
 ## Setup 
 * The pycharm project (.idea/) is created at the project root level
