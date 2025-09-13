@@ -26,7 +26,7 @@
   * [Author](#author)
 <!-- TOC -->
 
-## Purpose
+## 🎌 Purpose
 The purpose of this repo is to establish an ideal python project repository setup that covers the following desiderata:
 - Execution works from command line, vs code, pycharm
 - No tweaks to sys.path (codebase) or PYTHONPATH (environment) are required
@@ -37,7 +37,7 @@ The purpose of this repo is to establish an ideal python project repository setu
 - Modules in subfolders (packages) can also be executed as scripts
 - A virtual environment can be created at the project root level
 
-## The theory
+## 📖 The theory
 To fully grasp the solution that covers these desiderata, we need to understand how python imports work at a deeper level.
 - Understand the difference between cwd and sys.path
 - Understand the differences between modules, files, packages and folders
@@ -46,10 +46,11 @@ To fully grasp the solution that covers these desiderata, we need to understand 
 - Understand absolute vs relative imports
 
 ### Current working directory
-The current working directory (cwd) is the directory from which you started the python interpreter or script. 
-It can be obtained using `os.getcwd()`.
+The current working directory (cwd) is the directory from which you started the python interpreter or script.   
+It can be obtained using `os.getcwd()`.  
 It is important for python when resolving relative file paths.
-:warning: The cwd value has no direct relation to imports.
+
+**⚠️ The cwd value has no direct relation to imports.**
 
 ### Modules, packages
 A python **module** is a file containing python code. 
@@ -113,7 +114,7 @@ The internet is filled with people suggesting:
 
 All of the above are bad ideas because, when not handled carefully, they make your code less portable, as it will only work in your specific setup.
 
-## The solution (TL;DR)
+## ⏩ The solution (TL;DR)
 - Create your virtual environment at the project root level 
 - Create your IDE project (.idea or .vscode) at the project root level
 - Create your git folder at the project root level
@@ -127,7 +128,7 @@ All of the above are bad ideas because, when not handled carefully, they make yo
 - Mark the `src/` folder in pycharm as "sources root"
 - Tune your IDE run configuration to reflect the above settings
 
-## The solution (detailed)
+## ⏯️ The solution (detailed)
 In this section we will explore the solution to the desiderata mentioned above.
 
 ### Project setup
