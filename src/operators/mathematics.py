@@ -1,25 +1,16 @@
 from utils.simple_logger import log
 
-
 def return_math():
     return "math"
-
 
 def add(a, b):
     log(f"adding {a} + {b}")
     return a + b
 
-
 if __name__ == '__main__':
     import os
-
-    print("--- cwd ---")
-    print(os.getcwd())
-
     import sys
-
-    print("--- path ---")
-    for p in sys.path[:5]:
-        print(p)
-
+    print("cwd: " + os.getcwd())
+    print("sys.path[0]: " + sys.path[0])
+    print(sys.path)
     add(1, 1)
