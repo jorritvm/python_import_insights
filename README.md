@@ -100,7 +100,7 @@ Relative imports specify the path to the module or package you want to import re
 Relative imports use dot notation to indicate the current and parent packages involved in the import.
 It is recommended to use absolute imports for clarity and maintainability.
 
-## The pitfall
+## 👾 The pitfall
 To keep structure in your project, you want to separate data, configuration and source code files. 
 There are [good reasons](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/) to choose a src/ layout and without source code at the project root level.
 However, once you make that decision, chances are your code only works in pycharm, but not from the command line or vs code.
@@ -363,8 +363,8 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'utils'
 ```
 Since the `mathematics.py` relies on a cross-cutting concern (logging) implemented in a separate package, it contains an absolute import relative to `src/`.
-The only way to solve this is to intervene in sys.path manually. However, since the import utils is the first line of code, we need to intervene before that. 
-This can only be done via the environment variable PYTHONPATH:
+The only way to solve this is to intervene in sys.path manually. However, since `import utils` is the first line of code, we need to intervene before that. 
+The best way to do this is through the environment variable `PYTHONPATH`:
 ```commandline
 (python_import_insights) C:\dev\python\python_import_insights>set PYTHONPATH=src                  
 (python_import_insights) C:\dev\python\python_import_insights>python src\operators\mathematics.py
@@ -379,8 +379,9 @@ When you click the 'execute' button (green arrow) in pycharm, it will automatica
 You must tweak this configuration to reflect the above settings.
 - Set the working directory to the project root level
 - Set the script path to the module you want to run
+- Set the run mode to 'script' (not module)
 - Set the python interpreter to the virtual environment created at the project root level
-- Set the environment variable PYTHONPATH to src when running nested modules as scripts
+- Set the environment variable `PYTHONPATH` to `src` when running nested modules as scripts
 
 **Examples 1: running a module in src/**
 
@@ -391,7 +392,7 @@ You must tweak this configuration to reflect the above settings.
 ![PyCharm run configuration for nested module](docs/pycharm_run_config_nested.png)
 
 While everything seems to be working fine now, the pycharm IDE itself still has issues resolving the imports in the code editor.
-This leads to red underlines and 'unresolved reference' errors.
+This leads to red underlines and 'unresolved reference' errors. As a result, there is no code completion and no static code analysis.
 
 ![PyCharm unresolved reference](docs/pycharm_no_resolution.png)
 
@@ -401,7 +402,7 @@ An IDE restart might be required.
 
 ![PyCharm mark as sources root](docs/pycharm_mark_src_root.png)
 
-Note 1: Essentially, "Mark directory as sources root" adds the root of your project (the parent of the src\ folder) to the PYTHONPATH variable.
+Note 1: Essentially, "Mark directory as sources root" adds the root of your project (the parent of the src\ folder) to the PYTHONPATH variable.  
 Source: https://stackoverflow.com/questions/57360738/what-does-mark-directory-as-sources-root-really-do
 
 Note 2: Marking the source root folder allows you to send python code to your console (alt+shift+e) without lookup errors.
@@ -423,7 +424,7 @@ calling math: math
 log: adding 10 + 10
 making a sum: 20
 ```
-However, running nested modules as scripts will fail because src/ is not on sys.path.
+However, running nested modules as scripts will fail because `src\` is not on `sys.path`.
 ```commandline
 C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/operators/mathematics.py
 Traceback (most recent call last):
@@ -432,7 +433,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'utils'
 ```
 VS Code does not have full run configuration support like pycharm. The run button basically just sends a python run command to the currently open terminal.
-As such, you can easily set the PYTHONPATH variable in the terminal before running the nested module as a script:
+As such, you can easily set the PYTHONPATH variable in the terminal before running the nested module as a script (by clicking the run button):
 ```commandline
 C:\dev\python\python_import_insights>set PYTHONPATH=src
 
@@ -443,9 +444,9 @@ log: adding 1 + 1
 ```
 
 However, this does not work when debugging. 
-VS Code does offer a 'Debug using launch.json' option. 
+To fix this, VS Code offers a 'Debug using launch.json' option. 
 The standard provided template hardcodes a number of settings and does not tune the PYTHONPATH variable. 
-Hence it is better to manually add the following `launch.json` configuration.
+Hence it is better to manually define a `launch.json` configuration.
 To achieve this, create a `.vscode` folder at the project root level and add a `launch.json` file with the following content:
 ```json
 {
