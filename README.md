@@ -49,7 +49,7 @@ To fully grasp the solution that covers these desiderata, we need to understand 
 The current working directory (cwd) is the directory from which you started the python interpreter or script. 
 It can be obtained using `os.getcwd()`.
 It is important for python when resolving relative file paths.
-It has no direct relation to imports.
+:warning: The cwd value has no direct relation to imports.
 
 ### Modules, packages
 A python **module** is a file containing python code. 
