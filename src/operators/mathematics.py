@@ -12,5 +12,4 @@ if __name__ == '__main__':
     import sys
     print("cwd: " + os.getcwd())
     print("sys.path[0]: " + sys.path[0])
-    print(sys.path)
     add(1, 1)

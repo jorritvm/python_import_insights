@@ -1,7 +1,30 @@
 # Python import insights
 
 ## Table of contents
-todo
+<!-- TOC -->
+* [Python import insights](#python-import-insights)
+  * [Table of contents](#table-of-contents)
+  * [Purpose](#purpose)
+  * [Basics](#basics)
+    * [Current working directory](#current-working-directory)
+    * [Modules, packages](#modules-packages)
+    * [Script vs module execution](#script-vs-module-execution)
+    * [Module search path](#module-search-path)
+    * [Absolute vs relative imports](#absolute-vs-relative-imports)
+  * [The pitfall](#the-pitfall)
+  * [The solution (TL;DR)](#the-solution-tldr)
+  * [The solution (detailed)](#the-solution-detailed)
+    * [Project setup](#project-setup)
+    * [The virtual environment](#the-virtual-environment)
+    * [Verification of cwd and sys.path for this setup](#verification-of-cwd-and-syspath-for-this-setup)
+    * [Reading files at project root level](#reading-files-at-project-root-level)
+    * [Absolute imports and script execution mode](#absolute-imports-and-script-execution-mode)
+    * [Testing](#testing)
+    * [Running nested modules as scripts](#running-nested-modules-as-scripts)
+    * [Pycharm IDE configuration](#pycharm-ide-configuration)
+    * [VS Code IDE configuration](#vs-code-ide-configuration)
+  * [Author](#author)
+<!-- TOC -->
 
 ## Purpose
 The purpose of this repo is to establish an ideal python project repository setup that covers the following desiderata:
@@ -14,7 +37,7 @@ The purpose of this repo is to establish an ideal python project repository setu
 - Modules in subfolders (packages) can also be executed as scripts
 - A virtual environment can be created at the project root level
 
-## Basics
+## The theory
 To fully grasp the solution that covers these desiderata, we need to understand how python imports work at a deeper level.
 - Understand the difference between cwd and sys.path
 - Understand the differences between modules, files, packages and folders
@@ -91,7 +114,9 @@ The internet is filled with people suggesting:
 All of the above are bad ideas because, when not handled carefully, they make your code less portable, as it will only work in your specific setup.
 
 ## The solution (TL;DR)
-- Make sure your virtual environment is created at the project root level
+- Create your virtual environment at the project root level 
+- Create your IDE project (.idea or .vscode) at the project root level
+- Create your git folder at the project root level
 - Always run your code from the project root level
 - Store config and data files in subfolders of the project root directly
 - Access config and data files using relative file paths (relative to cwd)
@@ -364,117 +389,87 @@ You must tweak this configuration to reflect the above settings.
 
 ![PyCharm run configuration for nested module](docs/pycharm_run_config_nested.png)
 
+While everything seems to be working fine now, the pycharm IDE itself still has issues resolving the imports in the code editor.
+This leads to red underlines and 'unresolved reference' errors.
 
+![PyCharm unresolved reference](docs/pycharm_no_resolution.png)
 
-## Setup 
-* The pycharm project (.idea/) is created at the project root level
-* A module `main.py` is available at root level, containing executable code and a function
-* A subfolder src exists with module `main2.py`, containing only executable code
+This can be solved by marking the `src/` folder as 'sources root'.
+Right-click the `src/` folder in the project explorer and select 'Mark Directory as' -> 'Sources Root'.
+An IDE restart might be required.
 
-## Learnings
-### pycharm injects the root folder and plugins folder into the sys.path
-When we run `main.py` from the terminal we get:
-```
-PS C:\Users\jorrit\Desktop\pycharm_idea_at_root> py .\main.py
---- cwd ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root
---- path ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root 
-C:\python\309\python39.zip
-C:\python\309\DLLs
-C:\python\309\lib
-C:\python\309
-```
-Compare this to running `main.py` from pycharm using the green arrow:
-```
-C:\python\309\python.exe C:\Users\jorrit\Desktop\pycharm_idea_at_root\main.py 
---- cwd ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root
---- path ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root 
-C:\Users\jorrit\Desktop\pycharm_idea_at_root                                       <-- injected by pycharm!
-C:\Program Files\JetBrains\PyCharm 2023.1\plugins\python\helpers\pycharm_display   <-- injected by pycharm!
-C:\python\309\python39.zip
-C:\python\309\DLLs
-```
+![PyCharm mark as sources root](docs/pycharm_mark_src_root.png)
 
-### this means some code works in pycharm but not elsewhere!
-`main2.py` has an import from module main
-```
-if __name__ == '__main__':
-    import os
-    print("--- cwd ---")
-    print(os.getcwd())
-
-    import sys
-    print("--- path ---")
-    for p in sys.path[:5]:
-        print(p)
-
-    from main import print_hi
-    print_hi()
-```
-when we run it from the terminal it fails
-```
-PS C:\Users\jorrit\Desktop\pycharm_idea_at_root\src> py .\main2.py
---- cwd ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root\src
---- path ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root\src
-C:\python\309\python39.zip
-C:\python\309\DLLs
-C:\python\309\lib
-C:\python\309
-Traceback (most recent call last):
-  File "C:\Users\jorrit\Desktop\pycharm_idea_at_root\src\main2.py", line 12, in <module>
-    from main import print_hi
-ModuleNotFoundError: No module named 'main'
-```
-even running it from the root folder (different cwd) does not make a difference 
-as not the CWD but the python source file path is added to `sys.path`!!!
-```
-PS C:\Users\jorrit\Desktop\pycharm_idea_at_root> py .\src\main2.py
---- cwd ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root
---- path ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root\src
-C:\python\309\python39.zip
-C:\python\309\DLLs
-C:\python\309\lib
-C:\python\309
-Traceback (most recent call last):
-  File "C:\Users\jorrit\Desktop\pycharm_idea_at_root\src\main2.py", line 12, in <module>
-    from main import print_hi
-ModuleNotFoundError: No module named 'main'
-```
-But if we run it from pycharm, there is no issue whatsoever, due to the injected root folder
-```
-C:\python\309\python.exe C:\Users\jorrit\Desktop\pycharm_idea_at_root\src\main2.py 
---- cwd ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root\src
---- path ---
-C:\Users\jorrit\Desktop\pycharm_idea_at_root\src
-C:\Users\jorrit\Desktop\pycharm_idea_at_root
-C:\Program Files\JetBrains\PyCharm 2023.1\plugins\python\helpers\pycharm_display
-C:\python\309\python39.zip
-C:\python\309\DLLs
-Hi
-
-Process finished with exit code 0
-```
-
-### mark directory as 'source root' makes things even worse (from a reproducibility POV)
-Using this pycharm feature will add the marked folder to the `sys.path` in addition to the project root. 
+Note 1: Essentially, "Mark directory as sources root" adds the root of your project (the parent of the src\ folder) to the PYTHONPATH variable.
 Source: https://stackoverflow.com/questions/57360738/what-does-mark-directory-as-sources-root-really-do
 
-### Ideal setup
-- you should create your .idea project at project root level
-- you should create your venv at project root level and store your requirements.txt there as well
-- you should create your main source file in src/
-  - src/ will be on sys.path 
-  - all imports can be relative to src/ 
-- you should mark your src/ folder in pycharm as "sources root"
-  - this way it will appear in sys.path of your interactive console
-  - you might need to restart your console
-  - this allows you to send python code to your console (alt+shift+e) without lookup errors
-  
+Note 2: Marking the source root folder allows you to send python code to your console (alt+shift+e) without lookup errors.
+
+### VS Code IDE configuration
+VS Code will always put the working directory to the project root level. The sys.path[0] will point to the folder containing the script being run.
+This means everything that is run from src/ will work out of the box.
+```commandline
+C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/verify_path.py
+cwd: C:\dev\python\python_import_insights
+sys.path[0]: c:\dev\python\python_import_insights\src
+
+C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/read_config.py
+{'parameter_one': 'value_one', 'parameter_two': 'value_two'}
+
+C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/make_calls.py
+calling main: main
+calling math: math
+log: adding 10 + 10
+making a sum: 20
+```
+However, running nested modules as scripts will fail because src/ is not on sys.path.
+```commandline
+C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/operators/mathematics.py
+Traceback (most recent call last):
+  File "c:\dev\python\python_import_insights\src\operators\mathematics.py", line 1, in <module>
+    from utils.simple_logger import log
+ModuleNotFoundError: No module named 'utils'
+```
+VS Code does not have full run configuration support like pycharm. The run button basically just sends a python run command to the currently open terminal.
+As such, you can easily set the PYTHONPATH variable in the terminal before running the nested module as a script:
+```commandline
+C:\dev\python\python_import_insights>set PYTHONPATH=src
+
+C:\dev\python\python_import_insights>C:/python/309/python.exe c:/dev/python/python_import_insights/src/operators/mathematics.py
+cwd: C:\dev\python\python_import_insights
+sys.path[0]: c:\dev\python\python_import_insights\src\operators
+log: adding 1 + 1
+```
+
+However, this does not work when debugging. 
+VS Code does offer a 'Debug using launch.json' option. 
+The standard provided template hardcodes a number of settings and does not tune the PYTHONPATH variable. 
+Hence it is better to manually add the following `launch.json` configuration.
+To achieve this, create a `.vscode` folder at the project root level and add a `launch.json` file with the following content:
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Run Nested Module as Script",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        }
+    ]
+}
+```
+To then run a nested module as a script, open the module in the editor and select the above configuration in the run and debug view (Ctrl+Shift+D) and click the green play button.
+```commandline
+c:\dev\python\python_import_insights> c: && cd c:\dev\python\python_import_insights && cmd /C "C:\python\309\python.exe c:\Users\jorrit\.vscode\extensions\ms-python.debugpy-2025.10.0-win32-x64\bundled\libs\debugpy\launcher 8249 -- C:\dev\python\python_import_insights\src\operators\mathematics.py "
+cwd: c:\dev\python\python_import_insights
+sys.path[0]: C:\dev\python\python_import_insights\src\operators
+log: adding 1 + 1
+```
+
+## Author
+Jorrit Vander Mynsbrugge
